@@ -5,12 +5,32 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/misterlister/pokedex_cli/internal/pokeapi"
 )
 
+type config struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+	locationPage     int
+}
+
 func startRepl() {
+	pokeClient := pokeapi.NewClient(10 * time.Second)
+	cfg := &config{
+		pokeapiClient: pokeClient,
+		locationPage:  0,
+	}
+	validCommands := getCommands()
+	err := commandHelp(cfg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	reader := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print("Pokedex > ")
+		fmt.Print("\nPokedex > ")
 		reader.Scan()
 
 		words := cleanInput(reader.Text())
@@ -19,10 +39,10 @@ func startRepl() {
 		}
 
 		commandName := words[0]
-
-		command, exists := getCommands()[commandName]
+		fmt.Println()
+		command, exists := validCommands[commandName]
 		if exists {
-			err := command.callback()
+			err := command.callback(cfg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -43,7 +63,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -57,6 +77,16 @@ func getCommands() map[string]cliCommand {
 			name:        "exit",
 			description: "Exit the Pokedex application",
 			callback:    commandExit,
+		},
+		"map": {
+			name:        "map",
+			description: "Display the next page of map locations",
+			callback:    commandMapf,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Display the previous page of map locations",
+			callback:    commandMapb,
 		},
 	}
 }
