@@ -18,7 +18,7 @@ type config struct {
 }
 
 func startRepl() {
-	pokeClient := pokeapi.NewClient(10 * time.Second)
+	pokeClient := pokeapi.NewClient(10*time.Second, 30*time.Minute)
 	cfg := &config{
 		pokeapiClient: pokeClient,
 		locationPage:  0,

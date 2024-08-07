@@ -13,6 +13,19 @@ func (c *Client) ListLocations(pageURL *string) (LocationsResp, error) {
 		fullURL = *pageURL
 	}
 
+	// check if page is in the cache
+	dat, ok := c.cache.Get(fullURL)
+
+	if ok {
+		// cache hit
+		locationAreasResp := LocationsResp{}
+		err := json.Unmarshal(dat, &locationAreasResp)
+		if err != nil {
+			return LocationsResp{}, err
+		}
+		return locationAreasResp, nil
+	}
+
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
 		return LocationsResp{}, err
@@ -28,15 +41,18 @@ func (c *Client) ListLocations(pageURL *string) (LocationsResp, error) {
 	if resp.StatusCode > 399 {
 		return LocationsResp{}, fmt.Errorf("error: http status code: %v", resp.StatusCode)
 	}
-	data, err := io.ReadAll(resp.Body)
+	dat, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return LocationsResp{}, err
 	}
 
 	locationAreasResp := LocationsResp{}
-	err = json.Unmarshal(data, &locationAreasResp)
+	err = json.Unmarshal(dat, &locationAreasResp)
 	if err != nil {
 		return LocationsResp{}, err
 	}
+
+	c.cache.Add(fullURL, dat)
+
 	return locationAreasResp, nil
 }
