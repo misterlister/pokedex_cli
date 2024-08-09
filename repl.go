@@ -24,7 +24,7 @@ func startRepl() {
 		locationPage:  0,
 	}
 	validCommands := getCommands()
-	err := commandHelp(cfg)
+	err := commandHelp(cfg, "")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -39,10 +39,14 @@ func startRepl() {
 		}
 
 		commandName := words[0]
+		arg := ""
+		if len(words) > 1 {
+			arg = words[1]
+		}
 		fmt.Println()
 		command, exists := validCommands[commandName]
 		if exists {
-			err := command.callback(cfg)
+			err := command.callback(cfg, arg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -63,7 +67,7 @@ func cleanInput(text string) []string {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -87,6 +91,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Display the previous page of map locations",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Display all the pokemon found in a specified area (eg. 'explore mt-coronet-2f')",
+			callback:    commandExplore,
 		},
 	}
 }
