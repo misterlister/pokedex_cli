@@ -17,6 +17,7 @@ type config struct {
 	prevLocationsURL       *string
 	currentLocation        exploreLocation
 	locationPage           int
+	caughtPokemon          map[string]pokeapi.PokemonData
 }
 
 type exploreLocation struct {
@@ -30,6 +31,7 @@ func startRepl() {
 	cfg := &config{
 		pokeapiClient: pokeClient,
 		locationPage:  0,
+		caughtPokemon: make(map[string]pokeapi.PokemonData),
 	}
 	validCommands := getCommands()
 	err := commandHelp(cfg, "")
@@ -105,12 +107,10 @@ func getCommands() map[string]cliCommand {
 			description: "Display all the pokemon found in a specified area (eg. 'explore mt-coronet-2f')",
 			callback:    commandExplore,
 		},
-		/*
-			"catch": {
-				name: "catch",
-				description: "Attempt to catch a specified pokemon in the current area (eg. 'catch pikachu')",
-				callback:	commandCatch,
-			},
-		*/
+		"catch": {
+			name:        "catch",
+			description: "Attempt to catch a specified pokemon in the current area (eg. 'catch pikachu')",
+			callback:    commandCatch,
+		},
 	}
 }
