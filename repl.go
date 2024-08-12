@@ -11,10 +11,18 @@ import (
 )
 
 type config struct {
-	pokeapiClient    pokeapi.Client
-	nextLocationsURL *string
-	prevLocationsURL *string
-	locationPage     int
+	pokeapiClient          pokeapi.Client
+	nextLocationsURL       *string
+	currentLocationChoices []string
+	prevLocationsURL       *string
+	currentLocation        exploreLocation
+	locationPage           int
+}
+
+type exploreLocation struct {
+	data         *pokeapi.LocationArea
+	name         *string
+	localPokemon []string
 }
 
 func startRepl() {
@@ -97,5 +105,12 @@ func getCommands() map[string]cliCommand {
 			description: "Display all the pokemon found in a specified area (eg. 'explore mt-coronet-2f')",
 			callback:    commandExplore,
 		},
+		/*
+			"catch": {
+				name: "catch",
+				description: "Attempt to catch a specified pokemon in the current area (eg. 'catch pikachu')",
+				callback:	commandCatch,
+			},
+		*/
 	}
 }
