@@ -1,5 +1,6 @@
 package main
 
 const (
-	DIVIDER = "----------"
+	DIVIDER         = "----------"
+	CATCH_THRESHOLD = 40
 )
